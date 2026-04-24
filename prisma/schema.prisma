@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String           @id @default(cuid())
+  fullName        String
+  email           String           @unique
+  passwordHash    String
+  phone           String?
+  gender          String?
+  dateOfBirth     DateTime?
+  role            String           @default("CLIENT")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  
+  // Relations
+  therapistProfile Therapist?
+  appointments     Appointment[]   @relation("ClientAppointments")
+  supportRequests  SupportRequest[]
+  adminLogs        AdminLog[]
+}
+
+model Therapist {
+  id                String        @id @default(cuid())
+  userId            String        @unique
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialization    String
+  experienceYears   Int
+  availabilityStatus String        @default("Available")
+  professionalBio   String
+  qualifications    String
+  consultationMode  String        @default("Online")
+  contactDetails    String?
+  createdAt         DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  appointments     Appointment[]
+}
+
+model Appointment {
+  id              String            @id @default(cuid())
+  userId          String
+  client          User              @relation("ClientAppointments", fields: [userId], references: [id])
+  therapistId     String
+  therapist       Therapist         @relation(fields: [therapistId], references: [id])
+  appointmentDate DateTime
+  appointmentTime String            // e.g. "10:00 AM"
+  status          String            @default("PENDING")
+  sessionType     String            @default("General")
+  notes           String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  sessionRecord   SessionRecord?
+}
+
+model SessionRecord {
+  id              String      @id @default(cuid())
+  appointmentId   String      @unique
+  appointment     Appointment @relation(fields: [appointmentId], references: [id])
+  summary         String
+  therapistNotes  String
+  followUpDate    DateTime?
+  remarks         String?
+  updatedAt       DateTime    @updatedAt
+}
+
+model SupportRequest {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  subject   String
+  message   String
+  priority  String   @default("Medium")
+  status    String   @default("OPEN")
+  createdAt DateTime @default(now())
+}
+
+model AdminLog {
+  id                String   @id @default(cuid())
+  adminId           String
+  admin             User     @relation(fields: [adminId], references: [id])
+  actionType        String
+  actionDescription String
+  createdAt         DateTime @default(now())
+}
