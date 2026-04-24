@@ -10,13 +10,21 @@ import Auth from './pages/Auth';
 import Therapists from './pages/Therapists';
 import TherapistDetails from './pages/TherapistDetails';
 import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
 import Support from './pages/Support';
 import Documentation from './pages/Documentation';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  if (loading) return <div className="h-screen w-screen flex items-center justify-center">Loading...</div>;
+  if (loading) return <div className="h-screen w-screen flex items-center justify-center font-bold text-mint-600 uppercase tracking-widest text-xs">Initializing Session...</div>;
   if (!user) return <Navigate to="/auth?mode=login" />;
+  return <>{children}</>;
+}
+
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="h-screen w-screen flex items-center justify-center font-bold text-mint-600 uppercase tracking-widest text-xs">Verifying Credentials...</div>;
+  if (!user || user.role !== 'ADMIN') return <Navigate to="/" />;
   return <>{children}</>;
 }
 
@@ -44,6 +52,15 @@ export default function App() {
                 } 
               />
 
+              <Route 
+                path="/admin" 
+                element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                } 
+              />
+
               {/* Redirect any unknown route to home */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
@@ -54,7 +71,11 @@ export default function App() {
               <div className="grid md:grid-cols-4 gap-12 mb-16">
                 <div className="col-span-2">
                   <div className="flex items-center gap-2 mb-6 group">
-                    <Heart className="h-6 w-6 text-mint-600 fill-mint-600/20" />
+                    <img 
+                      src="https://ais-dev-23nox6oybnvzdp47yhui6e-137596778170.asia-east1.run.app/logo.png" 
+                      alt="Theramint Logo" 
+                      className="h-12 w-12 object-contain"
+                    />
                     <span className="serif text-2xl font-bold text-sage-900">Theramint</span>
                   </div>
                   <p className="text-zinc-500 max-w-sm mb-6 leading-relaxed font-medium">

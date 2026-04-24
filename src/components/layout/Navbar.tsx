@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+
 import { 
   Heart, 
   Video,
@@ -10,7 +11,8 @@ import {
   User as UserIcon, 
   LogOut, 
   LayoutDashboard, 
-  ChevronDown
+  ChevronDown,
+  ShieldCheck
 } from 'lucide-react';
 import {
   Sheet,
@@ -43,8 +45,16 @@ export function Navbar() {
       <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2 group">
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-              <Heart className="h-5 w-5 text-mint-600 fill-mint-600/20" />
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <img 
+                src="/logo.png"
+                alt="Theramint Logo" 
+                className="h-10 w-10 object-contain"
+                onError={(e) => {
+                  // Fallback if logo not found
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
             </motion.div>
             <div className="flex flex-col leading-none">
               <span className="serif text-xl font-bold text-sage-900">Theramint</span>
@@ -61,6 +71,14 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-4">
           {user ? (
             <div className="flex items-center gap-4">
+              {(user.role === 'ADMIN' || user.email === 'asif17111998@gmail.com') && (
+                <Link to="/admin">
+                  <Button variant="ghost" className="gap-2 text-zinc-900 hover:bg-zinc-100 rounded-xl font-bold bg-zinc-50 border border-zinc-200 shadow-sm transition-all hover:translate-y-[-1px]">
+                    <ShieldCheck className="h-4 w-4 text-zinc-600" />
+                    Admin
+                  </Button>
+                </Link>
+              )}
               <Link to="/dashboard">
                 <Button variant="ghost" className="gap-2 text-sage-900 hover:bg-mint-50 rounded-xl font-bold">
                   <LayoutDashboard className="h-4 w-4" />

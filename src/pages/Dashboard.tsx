@@ -37,7 +37,8 @@ import {
   Tooltip, 
   ResponsiveContainer, 
   AreaChart, 
-  Area 
+  Area,
+  Cell
 } from 'recharts';
 
 export default function Dashboard() {
@@ -208,18 +209,20 @@ export default function Dashboard() {
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={chartData}>
                           <defs>
-                            <linearGradient id="colorEnergy" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#4ade80" stopOpacity={0.4}/>
-                              <stop offset="95%" stopColor="#4ade80" stopOpacity={0}/>
+                            <linearGradient id="colorWave" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                             </linearGradient>
                           </defs>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                           <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }} />
-                          <YAxis hide />
+                          <YAxis hide domain={[0, 100]} />
                           <Tooltip 
                             contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', background: '#fff' }}
+                            itemStyle={{ fontWeight: 'bold', fontSize: '12px' }}
                           />
-                          <Area type="monotone" dataKey="energy" stroke="#22c55e" strokeWidth={4} fillOpacity={1} fill="url(#colorEnergy)" />
+                          <Area type="monotone" dataKey="energy" stroke="#059669" strokeWidth={4} fillOpacity={1} fill="url(#colorWave)" />
+                          <Area type="monotone" dataKey="stress" stroke="#ef4444" strokeWidth={2} strokeDasharray="5 5" fill="none" />
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
@@ -233,15 +236,25 @@ export default function Dashboard() {
                     <div className="h-64 w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={[
-                          { name: 'CBT', val: 40 },
-                          { name: 'ACT', val: 30 },
-                          { name: 'DBT', val: 20 },
-                          { name: 'Humanistic', val: 10 },
+                          { name: 'CBT', val: 40, color: '#059669' },
+                          { name: 'ACT', val: 30, color: '#0891b2' },
+                          { name: 'DBT', val: 20, color: '#f59e0b' },
+                          { name: 'Humanistic', val: 10, color: '#dc2626' },
                         ]}>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                           <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }} />
                           <YAxis hide />
-                          <Bar dataKey="val" fill="#86efac" radius={[12, 12, 0, 0]} />
+                          <Tooltip 
+                            contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', background: '#fff' }}
+                            cursor={{ fill: '#f8fafc' }}
+                          />
+                          <Bar dataKey="val" radius={[12, 12, 0, 0]}>
+                            {
+                              [40, 30, 20, 10].map((v, i) => (
+                                <Cell key={`cell-${i}`} fill={['#059669', '#0891b2', '#f59e0b', '#dc2626'][i]} />
+                              ))
+                            }
+                          </Bar>
                         </BarChart>
                       </ResponsiveContainer>
                     </div>

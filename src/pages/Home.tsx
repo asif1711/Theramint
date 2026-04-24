@@ -103,7 +103,7 @@ export default function Home() {
                        boxShadow: '0 50px 100px -20px rgba(0,0,0,0.1)' 
                      }}>
                   <img 
-                    src="https://images.unsplash.com/photo-1522333323533-4439f791f038?auto=format&fit=crop&q=80&w=1200" 
+                    src="/hero-banner.jpg" 
                     alt="Serene Therapy Environment"
                     className="w-full h-full object-cover transition-transform duration-[3s] hover:scale-110"
                   />
