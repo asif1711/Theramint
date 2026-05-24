@@ -89,7 +89,7 @@ export default function Home() {
                        boxShadow: '0 30px 60px -15px rgba(0,0,0,0.08)' 
                      }}>
                   <img 
-                    src="/hero-banner.jpg" 
+                    src={`${import.meta.env.BASE_URL}hero-banner.jpg`} 
                     alt="Serene Therapy Environment"
                     className="w-full h-full object-cover transition-transform duration-[3s] scale-100 hover:scale-110"
                   />
