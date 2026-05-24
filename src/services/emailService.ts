@@ -18,11 +18,11 @@ export const sendEmail = async ({ to, subject, html }: { to: string, subject: st
   const client = getResend();
   const from = 'Theramint <onboarding@resend.dev>'; // Resend testing domain
   
-  // Development Override Logic
-  const devOverride = process.env.DEV_EMAIL_OVERRIDE;
-  const actualRecipient = (process.env.NODE_ENV === 'development' && devOverride) ? devOverride : to;
+  // Override Logic for both Development and Staging/Production Testing
+  const emailOverride = process.env.OVERRIDE_RECIPIENT_EMAIL || process.env.DEV_EMAIL_OVERRIDE;
+  const actualRecipient = emailOverride ? emailOverride : to;
 
-  if (devOverride && process.env.NODE_ENV === 'development') {
+  if (emailOverride) {
     console.log(`[EMAIL OVERRIDE] Redirecting mail from ${to} to ${actualRecipient}`);
   }
 
