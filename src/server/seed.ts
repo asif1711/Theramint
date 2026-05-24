@@ -2,18 +2,6 @@ import { prisma } from './db.js';
 import { hashPassword } from './auth.js';
 
 async function seed() {
-  // Create Admin
-  const adminPassword = await hashPassword('admin123');
-  await prisma.user.upsert({
-    where: { email: 'admin@theramint.com' },
-    update: {},
-    create: {
-      fullName: 'System Admin',
-      email: 'admin@theramint.com',
-      passwordHash: adminPassword,
-      role: 'ADMIN',
-    },
-  });
 
   // Create some Therapists
   const therapists = [

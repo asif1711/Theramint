@@ -2,7 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Navbar } from './components/layout/Navbar';
-import { Heart } from 'lucide-react';
+import ScrollToTop from './components/layout/ScrollToTop';
+import { Heart, Instagram, Linkedin, Twitter } from 'lucide-react';
 
 // Lazy load pages for performance
 import Home from './pages/Home';
@@ -10,15 +11,28 @@ import Auth from './pages/Auth';
 import Therapists from './pages/Therapists';
 import TherapistDetails from './pages/TherapistDetails';
 import Dashboard from './pages/Dashboard';
+import TherapistDashboard from './pages/TherapistDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import Support from './pages/Support';
 import Documentation from './pages/Documentation';
+import ResetPassword from './pages/ResetPassword';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="h-screen w-screen flex items-center justify-center font-bold text-mint-600 uppercase tracking-widest text-xs">Initializing Session...</div>;
   if (!user) return <Navigate to="/auth?mode=login" />;
+  
+  // Role based access for standard dashboard
+  if (user.role === 'ADMIN') return <Navigate to="/admin" />;
+  
   return <>{children}</>;
+}
+
+function RoleBasedDashboard() {
+  const { user } = useAuth();
+  if (user?.role === 'THERAPIST') return <TherapistDashboard />;
+  if (user?.role === 'ADMIN') return <Navigate to="/admin" />;
+  return <Dashboard />;
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
@@ -28,9 +42,21 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function PublicOnlyRoute({ children, exclusive = false }: { children: React.ReactNode, exclusive?: boolean }) {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  
+  // Admin shouldn't see normal pages if requested
+  if (user?.role === 'ADMIN' && exclusive) return <Navigate to="/admin" />;
+  if (user?.role === 'THERAPIST' && exclusive) return <Navigate to="/dashboard" />;
+  
+  return <>{children}</>;
+}
+
 export default function App() {
   return (
     <Router>
+      <ScrollToTop />
       <AuthProvider>
         <div className="flex flex-col min-h-screen">
           <Navbar />
@@ -38,16 +64,24 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/therapists" element={<Therapists />} />
-              <Route path="/therapists/:id" element={<TherapistDetails />} />
-              <Route path="/support" element={<Support />} />
-              <Route path="/documentation" element={<Documentation />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/therapists" element={<PublicOnlyRoute exclusive><Therapists /></PublicOnlyRoute>} />
+              <Route path="/therapists/:id" element={<PublicOnlyRoute exclusive><TherapistDetails /></PublicOnlyRoute>} />
+              <Route path="/support" element={<PublicOnlyRoute exclusive><Support /></PublicOnlyRoute>} />
+              <Route 
+                path="/documentation" 
+                element={
+                  <AdminRoute>
+                    <Documentation />
+                  </AdminRoute>
+                } 
+              />
               
               <Route 
                 path="/dashboard" 
                 element={
                   <ProtectedRoute>
-                    <Dashboard />
+                    <RoleBasedDashboard />
                   </ProtectedRoute>
                 } 
               />
@@ -66,42 +100,57 @@ export default function App() {
             </Routes>
           </main>
           
-          <footer className="bg-sage-100 border-t border-mint-200 pt-24 pb-12 overflow-hidden relative">
+          <footer className="bg-sage-100 border-t border-mint-200 pt-12 pb-8 overflow-hidden relative">
             <div className="container mx-auto px-4 md:px-8 relative z-10">
-              <div className="grid md:grid-cols-4 gap-12 mb-16">
+              <div className="grid md:grid-cols-4 gap-8 mb-8">
                 <div className="col-span-2">
-                  <div className="flex items-center gap-2 mb-6 group">
+                  <div className="flex items-center gap-2 mb-4 group">
                     <img 
-                      src="https://ais-dev-23nox6oybnvzdp47yhui6e-137596778170.asia-east1.run.app/logo.png" 
+                      src="/logo.png" 
                       alt="Theramint Logo" 
-                      className="h-12 w-12 object-contain"
+                      className="h-10 w-10 object-contain"
                     />
-                    <span className="serif text-2xl font-bold text-sage-900">Theramint</span>
+                    <span className="serif text-xl font-bold text-sage-900">Theramint</span>
                   </div>
-                  <p className="text-zinc-500 max-w-sm mb-6 leading-relaxed font-medium">
+                  <p className="text-zinc-500 max-w-sm mb-4 leading-relaxed text-sm font-medium">
                     Connecting individuals with certified mental health professionals through a modern, secure, and compassionate digital ecosystem designed for holistic well-being.
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-[10px] font-bold text-sage-900 uppercase tracking-[0.2em] mb-6">Explore</h4>
-                  <ul className="space-y-4">
+                  <h4 className="text-[10px] font-bold text-sage-900 uppercase tracking-[0.2em] mb-4">Explore</h4>
+                  <ul className="space-y-2 text-sm">
                     <li><Link to="/therapists" className="text-zinc-500 hover:text-mint-700 font-medium transition-colors">Find a Therapist</Link></li>
                     <li><Link to="/about" className="text-zinc-500 hover:text-mint-700 font-medium transition-colors">Our Approach</Link></li>
                     <li><Link to="/support" className="text-zinc-500 hover:text-mint-700 font-medium transition-colors">Help Center</Link></li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="text-[10px] font-bold text-sage-900 uppercase tracking-[0.2em] mb-6">Social Interaction</h4>
-                  <ul className="space-y-4">
-                    <li><a href="#" className="text-zinc-500 hover:text-mint-700 font-medium transition-colors">Instagram</a></li>
-                    <li><a href="#" className="text-zinc-500 hover:text-mint-700 font-medium transition-colors">LinkedIn</a></li>
-                    <li><a href="#" className="text-zinc-500 hover:text-mint-700 font-medium transition-colors">Twitter X</a></li>
+                  <h4 className="text-[10px] font-bold text-sage-900 uppercase tracking-[0.2em] mb-4">Social Interaction</h4>
+                  <ul className="space-y-2 text-sm">
+                    <li>
+                      <a href="#" className="text-zinc-500 hover:text-mint-700 font-medium transition-colors flex items-center gap-2 group/link">
+                        <Instagram className="h-4 w-4 text-zinc-400 group-hover/link:text-mint-600 transition-colors" />
+                        <span>Instagram</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" className="text-zinc-500 hover:text-mint-700 font-medium transition-colors flex items-center gap-2 group/link">
+                        <Linkedin className="h-4 w-4 text-zinc-400 group-hover/link:text-mint-600 transition-colors" />
+                        <span>LinkedIn</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" className="text-zinc-500 hover:text-mint-700 font-medium transition-colors flex items-center gap-2 group/link">
+                        <Twitter className="h-4 w-4 text-zinc-400 group-hover/link:text-mint-600 transition-colors" />
+                        <span>Twitter X</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </div>
-              <div className="pt-8 border-t border-mint-200 flex flex-col md:flex-row justify-between items-center gap-4 text-zinc-400 text-[11px] font-bold uppercase tracking-widest">
-                <p>© 2026 Theramint Online Therapy. Mindful Care Ecosystem.</p>
-                <div className="flex gap-8">
+              <div className="pt-6 border-t border-mint-200 flex flex-col md:flex-row justify-between items-center gap-4 text-zinc-400 text-[10px] font-bold uppercase tracking-widest">
+                <p className="font-display font-medium text-sm md:text-base normal-case tracking-normal text-zinc-500">© 2026 Theramint Online Therapy</p>
+                <div className="flex gap-6">
                   <a href="#" className="hover:text-sage-900 transition-colors">Privacy Policy</a>
                   <a href="#" className="hover:text-sage-900 transition-colors">Terms of Service</a>
                 </div>

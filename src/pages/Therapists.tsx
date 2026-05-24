@@ -42,8 +42,8 @@ export default function Therapists() {
 
   const filteredTherapists = therapists.filter(t => {
     const matchesSearch = t.user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          t.specialties.some((s: string) => s.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = category === 'All' || t.specialties.includes(category);
+                          (t.specialization && t.specialization.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesCategory = category === 'All' || (t.specialization && t.specialization.includes(category));
     return matchesSearch && matchesCategory;
   });
 
@@ -52,21 +52,21 @@ export default function Therapists() {
   return (
     <div className="min-h-screen bg-sage-50 pb-32">
       {/* Header Section with New Green Theme */}
-      <section className="bg-white border-b border-mint-100 pt-24 pb-20 relative overflow-hidden px-4">
+      <section className="bg-white border-b border-mint-100 pt-12 pb-10 relative overflow-hidden px-4">
         <div className="container mx-auto relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-mint-50 text-mint-600 text-[10px] font-bold uppercase tracking-widest mb-8 border border-mint-100/50">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-mint-50 text-mint-600 text-[10px] font-bold uppercase tracking-widest mb-6 border border-mint-100/50">
               <Sparkles className="h-3 w-3" />
               <span>Certified Specialists Only</span>
             </div>
-            <h1 className="serif text-5xl md:text-7xl font-bold text-sage-900 mb-8 tracking-tighter">
+            <h1 className="serif text-4xl md:text-5xl font-bold text-sage-900 mb-6 tracking-wide">
               Meet our world-class <span className="text-mint-600 italic">specialists.</span>
             </h1>
-            <p className="text-lg text-zinc-500 font-medium leading-relaxed max-w-2xl mx-auto mb-12 opacity-80">
+            <p className="text-base text-zinc-500 font-medium leading-relaxed max-w-2xl mx-auto mb-8 opacity-80">
               Every therapist at Theramint undergoes a rigorous 4-step verification process to ensure you receive the highest standard of compassionate care.
             </p>
 
@@ -78,10 +78,10 @@ export default function Therapists() {
                    placeholder="Search by name, specialty, or focus area..." 
                    value={searchTerm}
                    onChange={(e) => setSearchTerm(e.target.value)}
-                   className="h-16 pl-14 pr-6 rounded-3xl bg-sage-50/50 border-mint-100 focus:ring-mint-500 text-lg shadow-sm"
+                   className="h-14 pl-14 pr-6 rounded-3xl bg-sage-50/50 border-mint-100 focus:ring-mint-500 text-base shadow-sm"
                 />
               </div>
-              <Button size="lg" className="h-16 px-8 rounded-3xl bg-sage-900 text-white font-bold hover:bg-zinc-800 transition-all">
+              <Button size="lg" className="h-14 px-8 rounded-3xl bg-mint-600 text-white font-bold hover:bg-mint-700 transition-all shadow-md shadow-mint-600/10">
                 Search
               </Button>
             </div>
@@ -94,7 +94,7 @@ export default function Therapists() {
       </section>
 
       {/* Categories Filter */}
-      <div className="container mx-auto px-4 mt-12 mb-16 overflow-x-auto scrollbar-hide py-2 flex justify-center">
+      <div className="container mx-auto px-4 mt-6 mb-8 overflow-x-auto scrollbar-hide py-2 flex justify-center">
         <div className="flex gap-4 p-1 bg-white rounded-[2rem] shadow-sm border border-mint-100">
            {categories.map((cat) => (
              <button
@@ -161,7 +161,7 @@ export default function Therapists() {
                       </div>
 
                       <div className="flex flex-wrap gap-2 mb-8">
-                        {therapist.specialties.slice(0, 3).map((spec: string) => (
+                        {therapist.specialization && [therapist.specialization].map((spec: string) => (
                           <span key={spec} className="px-5 py-2 bg-sage-50 text-sage-900/60 rounded-full text-[10px] font-bold uppercase tracking-widest border border-sage-100">
                             {spec}
                           </span>

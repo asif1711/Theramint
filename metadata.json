@@ -2,5 +2,5 @@
   "name": "Theramint",
   "description": "A modern digital mental healthcare platform connecting professional therapists with clients through advanced discovery, booking, and structured session management.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

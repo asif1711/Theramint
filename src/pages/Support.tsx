@@ -31,7 +31,7 @@ export default function Support() {
               <HelpCircle className="h-3 w-3" />
               <span>Dedicated Support Team</span>
             </div>
-            <h1 className="serif text-5xl md:text-7xl font-bold text-sage-900 mb-8 tracking-tighter">
+            <h1 className="serif text-5xl md:text-7xl font-bold text-sage-900 mb-8 tracking-wide">
               How can we <span className="text-mint-600">help</span> you today?
             </h1>
             <p className="text-lg text-zinc-500 font-medium leading-relaxed max-w-2xl mx-auto mb-12">
@@ -79,6 +79,10 @@ export default function Support() {
             ].map((item, i) => (
               <motion.div
                 key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.8, delay: i * 0.1, ease: [0.21, 0.85, 0.4, 1] }}
                 whileHover={{ y: -10 }}
                 className="bg-white p-12 rounded-[3.5rem] border border-mint-100/50 shadow-xl shadow-mint-100/10 group transition-all"
               >

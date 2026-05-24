@@ -1,28 +1,23 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: 'file:./dev.db',
-    },
-  },
-});
+const prisma = new PrismaClient();
 
 async function main() {
   const email = 'asif17111998@gmail.com';
-  console.log(`Setting admin role for ${email}...`);
-  
-  try {
-    const user = await prisma.user.update({
-      where: { email },
-      data: { role: 'ADMIN' },
-    });
-    console.log('Success:', user);
-  } catch (err) {
-    console.error('User not found or error:', err.message);
-  } finally {
-    await prisma.$disconnect();
-  }
+  const newPassword = 'admin123';
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  await prisma.user.update({
+    where: { email },
+    data: {
+      passwordHash: hashedPassword,
+    },
+  });
+
+  console.log('Password reset done');
+  await prisma.$disconnect();
 }
 
 main();

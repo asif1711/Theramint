@@ -11,8 +11,8 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: any) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  register: (data: any) => Promise<User>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
 }
@@ -49,12 +49,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
+
+    const contentType = res.headers.get('content-type');
     if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Login failed');
+      if (contentType && contentType.includes('application/json')) {
+        const err = await res.json();
+        throw new Error(err.error || 'Login failed');
+      } else {
+        const text = await res.text();
+        console.error('Non-JSON error response:', text);
+        throw new Error(`Server error (${res.status})`);
+      }
     }
-    const data = await res.json();
-    setUser(data.user);
+
+    if (contentType && contentType.includes('application/json')) {
+      const data = await res.json();
+      setUser(data.user);
+      return data.user;
+    } else {
+      throw new Error('Invalid server response format');
+    }
   };
 
   const register = async (payload: any) => {
@@ -63,12 +77,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
+    const contentType = res.headers.get('content-type');
     if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Registration failed');
+      if (contentType && contentType.includes('application/json')) {
+        const err = await res.json();
+        throw new Error(err.error || 'Registration failed');
+      } else {
+        const text = await res.text();
+        console.error('Non-JSON error response (register):', text);
+        throw new Error(`Server error (${res.status})`);
+      }
     }
-    const data = await res.json();
-    setUser(data.user);
+    
+    if (contentType && contentType.includes('application/json')) {
+      const data = await res.json();
+      setUser(data.user);
+      return data.user;
+    } else {
+      throw new Error('Invalid server response format');
+    }
   };
 
   const logout = async () => {

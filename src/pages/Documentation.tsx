@@ -30,7 +30,7 @@ export default function Documentation() {
                <Terminal className="h-4 w-4" />
                <span>Version 2.4.0 • Stability Patch</span>
             </div>
-            <h1 className="serif text-5xl md:text-8xl font-bold text-sage-900 mb-8 tracking-tighter leading-[0.9]">
+            <h1 className="serif text-5xl md:text-8xl font-bold text-sage-900 mb-8 tracking-wide leading-[0.9]">
               Engineering <span className="text-mint-600 block">Compassion.</span>
             </h1>
             <p className="text-xl text-zinc-500 font-medium leading-relaxed max-w-2xl mx-auto opacity-70">

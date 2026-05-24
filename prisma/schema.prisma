@@ -8,7 +8,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -21,6 +21,15 @@ model User {
   gender          String?
   dateOfBirth     DateTime?
   role            String           @default("CLIENT")
+  status          String           @default("ACTIVE")
+  emailVerified   Boolean          @default(false)
+  verificationToken String?
+  verificationTokenExpiry DateTime?
+  twoFactorCode   String?
+  twoFactorExpiry DateTime?
+  last2FADone     DateTime?
+  resetToken      String?
+  resetTokenExpiry DateTime?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   
@@ -58,6 +67,8 @@ model Appointment {
   appointmentDate DateTime
   appointmentTime String            // e.g. "10:00 AM"
   status          String            @default("PENDING")
+  paymentStatus   String            @default("UNPAID") // UNPAID, PAID, REFUNDED
+  amount          Float             @default(0)
   sessionType     String            @default("General")
   notes           String?
   createdAt       DateTime          @default(now())

@@ -33,16 +33,25 @@ export default function TherapistDetails() {
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [sessionType, setSessionType] = useState<'ONLINE' | 'IN_PERSON'>('ONLINE');
   const [bookingLoading, setBookingLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [occupiedSlots, setOccupiedSlots] = useState<any[]>([]);
 
   const timeSlots = [
     "09:00 AM", "10:00 AM", "11:00 AM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM"
   ];
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     fetchTherapist();
   }, [id]);
+
+  useEffect(() => {
+    if (selectedDate && therapist) {
+      fetchAvailability();
+    }
+  }, [selectedDate, therapist]);
 
   const fetchTherapist = async () => {
     try {
@@ -55,6 +64,29 @@ export default function TherapistDetails() {
       setLoading(false);
     }
   };
+
+  const fetchAvailability = async () => {
+    try {
+      const res = await fetch(`/api/therapists/${therapist.id}/availability?date=${selectedDate?.toISOString()}`);
+      const data = await res.json();
+      setOccupiedSlots(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const [timeHH, setTimeHH] = useState<string>('');
+  const [timeMM, setTimeMM] = useState<string>('');
+  const [timePeriod, setTimePeriod] = useState<'AM' | 'PM'>('PM');
+
+  useEffect(() => {
+    if (timeHH && timeMM) {
+      // Normalize HH to ensure it's 2 digits for display if needed, but here we just combine
+      const hh = timeHH.padStart(2, '0');
+      const mm = timeMM.padStart(2, '0');
+      setSelectedTime(`${hh}:${mm} ${timePeriod}`);
+    }
+  }, [timeHH, timeMM, timePeriod]);
 
   const handleBook = async () => {
     if (!user) {
@@ -75,11 +107,14 @@ export default function TherapistDetails() {
           therapistId: therapist.id,
           date: selectedDate,
           time: selectedTime,
-          sessionType: 'Video Consultation'
+          sessionType: sessionType
         }),
       });
       if (res.ok) {
-        navigate('/dashboard?tab=appointments&success=true');
+        setMessage("Booking requested successfully! Redirecting...");
+        setTimeout(() => {
+          navigate('/dashboard?success=true');
+        }, 1500);
       } else {
         const err = await res.json();
         setMessage(err.error || "Booking failed");
@@ -139,8 +174,8 @@ export default function TherapistDetails() {
                   <Sparkles className="h-3 w-3" />
                   <span>Licensed Clinical Specialist</span>
                 </div>
-                <h1 className="serif text-5xl md:text-7xl font-bold text-sage-900 tracking-tighter">{therapist.user.fullName}</h1>
-                <p className="text-2xl font-bold text-mint-600 bg-mint-50 w-fit px-6 py-2 rounded-2xl mx-auto lg:mx-0">{therapist.specialization || therapist.specialties[0]}</p>
+                <h1 className="serif text-5xl md:text-7xl font-bold text-sage-900 tracking-wide">{therapist.user.fullName}</h1>
+                <p className="text-2xl font-bold text-mint-600 bg-mint-50 w-fit px-6 py-2 rounded-2xl mx-auto lg:mx-0">{therapist.specialization || 'Clinical Specialist'}</p>
               </div>
               
               <div className="flex flex-wrap justify-center lg:justify-start gap-10">
@@ -177,7 +212,7 @@ export default function TherapistDetails() {
 
       {/* Main Narrative Content */}
       <div className="container mx-auto px-4 md:px-8 py-24">
-        <div className="grid lg:grid-cols-12 gap-20">
+        <div className="grid lg:grid-cols-12 gap-12">
           <div className="lg:col-span-7 space-y-20">
             <section>
               <h2 className="serif text-4xl font-bold text-sage-900 mb-8">Professional Philosophy</h2>
@@ -241,7 +276,7 @@ export default function TherapistDetails() {
 
           {/* Majestic Booking Floating Sidebar */}
           <div className="lg:col-span-5 h-fit lg:sticky lg:top-24">
-            <Card className="border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.1)] rounded-[3.5rem] bg-sage-900 p-10 text-white overflow-hidden relative">
+            <Card className="border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.1)] rounded-[3rem] bg-sage-900 px-6 py-10 md:p-8 text-white overflow-hidden relative">
               <div className="relative z-10 flex flex-col gap-10">
                 <div>
                    <h3 className="serif text-4xl font-bold mb-2">Book a Session</h3>
@@ -249,23 +284,151 @@ export default function TherapistDetails() {
                 </div>
 
                 <div className="space-y-10">
-                  <div className="bg-white/5 p-6 rounded-[2.5rem] border border-white/10">
+                  <div className="space-y-6">
+                    <label className="text-[11px] font-bold text-mint-400 uppercase tracking-[0.2em] block text-center">Session Type</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => setSessionType('ONLINE')}
+                        className={`py-4 rounded-2xl text-[11px] font-bold tracking-widest transition-all flex flex-col items-center gap-2 ${
+                          sessionType === 'ONLINE' 
+                          ? 'bg-mint-500 text-sage-900 shadow-xl shadow-mint-500/20 scale-105' 
+                          : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
+                        }`}
+                      >
+                        <Video className="h-4 w-4" />
+                        Online
+                      </button>
+                      <button
+                        onClick={() => setSessionType('IN_PERSON')}
+                        className={`py-4 rounded-2xl text-[11px] font-bold tracking-widest transition-all flex flex-col items-center gap-2 ${
+                          sessionType === 'IN_PERSON' 
+                          ? 'bg-mint-500 text-sage-900 shadow-xl shadow-mint-500/20 scale-105' 
+                          : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
+                        }`}
+                      >
+                        <MapPin className="h-4 w-4" />
+                        In-Person
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 p-4 md:p-6 rounded-[2.5rem] border border-white/10">
                     <label className="text-[11px] font-bold text-mint-400 uppercase tracking-[0.2em] mb-6 block text-center">Calendar Perspective</label>
                     <Calendar
                       mode="single"
                       selected={selectedDate}
                       onSelect={setSelectedDate}
-                      className="bg-transparent border-none text-white selection:bg-mint-500 data-[state=selected]:bg-mint-500"
+                      className="bg-transparent border-none text-white w-full"
+                      classNames={{
+                        month_caption: "flex justify-center relative items-center h-10 mb-8 serif text-xl text-white",
+                        caption_label: "text-xl font-bold",
+                        nav: "flex space-x-2",
+                        button_previous: "absolute left-0 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 text-white flex items-center justify-center transition-all",
+                        button_next: "absolute right-0 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 text-white flex items-center justify-center transition-all",
+                        month_grid: "w-full border-collapse",
+                        weekdays: "grid grid-cols-7 w-full",
+                        weekday: "text-mint-400/50 font-bold text-[10px] uppercase tracking-widest text-center pb-4",
+                        week: "grid grid-cols-7 w-full mt-2",
+                        day: "text-center text-xs p-0 relative focus-within:relative focus-within:z-20 h-8 w-full flex items-center justify-center",
+                        day_button: "h-8 w-8 p-0 font-medium aria-selected:opacity-100 hover:bg-white/10 rounded-xl transition-all flex items-center justify-center",
+                        selected: "bg-white text-zinc-900 font-black rounded-xl hover:bg-white !opacity-100 shadow-xl scale-110",
+                        today: "bg-white/10 text-white rounded-xl border border-white/20",
+                        outside: "day-outside text-white/20 opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
+                        disabled: "text-muted-foreground opacity-50",
+                        hidden: "invisible",
+                      }}
                     />
                   </div>
 
                   <div className="space-y-6">
-                    <label className="text-[11px] font-bold text-mint-400 uppercase tracking-[0.2em] block text-center">Available Intervals</label>
+                    <label className="text-[11px] font-bold text-mint-400 uppercase tracking-[0.2em] block text-center">Requested Time</label>
+                    <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-2 h-[72px]">
+                      <div className="flex-1 flex items-center bg-white/5 rounded-xl px-4 h-full border border-white/5 focus-within:border-mint-500/50 transition-all">
+                        <input
+                          type="text"
+                          placeholder="HH"
+                          maxLength={2}
+                          value={timeHH}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            if (parseInt(val) <= 12 || val === '') setTimeHH(val);
+                          }}
+                          className="w-full bg-transparent text-center text-xl font-black text-white focus:outline-none placeholder:text-white/10"
+                        />
+                        <span className="text-xl font-black text-white/20 px-1">:</span>
+                        <input
+                          type="text"
+                          placeholder="MM"
+                          maxLength={2}
+                          value={timeMM}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            if (parseInt(val) < 60 || val === '') setTimeMM(val);
+                          }}
+                          className="w-full bg-transparent text-center text-xl font-black text-white focus:outline-none placeholder:text-white/10"
+                        />
+                      </div>
+                      
+                      <div className="flex bg-white/5 rounded-xl p-1 h-full border border-white/5">
+                        {(['AM', 'PM'] as const).map((p) => (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() => setTimePeriod(p)}
+                            className={`px-4 h-full rounded-lg text-[10px] font-black tracking-widest transition-all ${
+                              timePeriod === p 
+                                ? 'bg-mint-500 text-teal-950 shadow-lg' 
+                                : 'text-white/40 hover:text-white'
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="px-4 flex items-center justify-center border-l border-white/10 h-1/2">
+                        <Clock className="h-5 w-5 text-mint-400" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {occupiedSlots.length > 0 && (
+                    <div className="space-y-4 bg-white/5 p-6 rounded-[2.5rem] border border-white/10">
+                      <label className="text-[11px] font-bold text-mint-400 uppercase tracking-[0.2em] block">Current Occupancy</label>
+                      <div className="space-y-3">
+                        {occupiedSlots.map((slot, i) => (
+                          <div key={i} className="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/5">
+                            <span className="text-sm font-bold text-white">{slot.appointmentTime}</span>
+                            <Badge className={`text-[9px] font-black uppercase tracking-wider rounded-lg ${
+                              slot.status === 'CONFIRMED' ? 'bg-emerald-500/20 text-emerald-400 border-none' : 
+                              slot.status === 'REJECTED' ? 'bg-rose-500/20 text-rose-400 border-none' :
+                              'bg-amber-500/20 text-amber-400 border-none'
+                            }`}>
+                              {slot.status === 'CONFIRMED' ? 'Occupied' : 
+                               slot.status === 'REJECTED' ? 'Declined' : 'Pending Request'}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-6">
+                    <label className="text-[11px] font-bold text-mint-400 uppercase tracking-[0.2em] block text-center">Quick Suggestions</label>
                     <div className="grid grid-cols-2 gap-3">
                       {timeSlots.map(time => (
                         <button
                           key={time}
-                          onClick={() => setSelectedTime(time)}
+                          type="button"
+                          onClick={() => {
+                            const parts = time.split(' ');
+                            const timePart = parts[0];
+                            const periodPart = parts[1] as 'AM' | 'PM';
+                            const [hh, mm] = timePart.split(':');
+                            setTimeHH(hh);
+                            setTimeMM(mm);
+                            setTimePeriod(periodPart);
+                          }}
                           className={`py-4 rounded-2xl text-[11px] font-bold tracking-widest transition-all ${
                             selectedTime === time 
                             ? 'bg-mint-500 text-sage-900 shadow-xl shadow-mint-500/20 scale-105' 
