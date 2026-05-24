@@ -6,6 +6,7 @@ import { Badge } from '../components/ui/badge';
 import { Card } from '../components/ui/card';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'motion/react';
+import { TherapistImage } from '../components/TherapistImage';
 import { 
   ArrowLeft, 
   ArrowRight,
@@ -151,8 +152,8 @@ export default function TherapistDetails() {
               className="relative"
             >
               <div className="w-56 h-56 md:w-80 md:h-80 rounded-[4rem] overflow-hidden border-[12px] border-white shadow-2xl shadow-mint-100/50">
-                <img 
-                  src={therapist.avatarUrl || `https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=800`} 
+                <TherapistImage 
+                  fullName={therapist.user.fullName}
                   alt={therapist.user.fullName}
                   className="w-full h-full object-cover"
                 />

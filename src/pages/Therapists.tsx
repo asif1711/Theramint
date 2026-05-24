@@ -17,6 +17,7 @@ import {
   Heart
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { TherapistImage } from '../components/TherapistImage';
 
 export default function Therapists() {
   const [therapists, setTherapists] = useState<any[]>([]);
@@ -126,8 +127,8 @@ export default function Therapists() {
                 <Link to={`/therapists/${therapist.id}`}>
                   <Card className="rounded-[2.5rem] border-none bg-white shadow-xl shadow-mint-100/10 overflow-hidden hover:shadow-2xl hover:shadow-mint-200/20 transition-all duration-500 group">
                     <div className="relative aspect-[4/3] overflow-hidden">
-                      <img 
-                        src={therapist.avatarUrl || `https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600`}
+                      <TherapistImage 
+                        fullName={therapist.user.fullName}
                         alt={therapist.user.fullName}
                         className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110"
                       />
