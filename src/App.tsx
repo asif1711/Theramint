@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Navbar } from './components/layout/Navbar';
 import ScrollToTop from './components/layout/ScrollToTop';
 import { Heart, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { getAssetUrl } from './lib/utils';
 
 // Lazy load pages for performance
 import Home from './pages/Home';
@@ -106,7 +107,7 @@ export default function App() {
                 <div className="col-span-2">
                   <div className="flex items-center gap-2 mb-4 group">
                     <img 
-                      src={`${import.meta.env.BASE_URL}logo.png`} 
+                      src={getAssetUrl('/logo.png')} 
                       alt="Theramint Logo" 
                       className="h-10 w-10 object-contain"
                     />

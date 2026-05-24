@@ -22,6 +22,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getAssetUrl } from '../lib/utils';
 
 export default function Home() {
   const { scrollY } = useScroll();
@@ -89,7 +90,7 @@ export default function Home() {
                        boxShadow: '0 30px 60px -15px rgba(0,0,0,0.08)' 
                      }}>
                   <img 
-                    src={`${import.meta.env.BASE_URL}hero-banner.jpg`} 
+                    src={getAssetUrl('/hero-banner.jpg')} 
                     alt="Serene Therapy Environment"
                     className="w-full h-full object-cover transition-transform duration-[3s] scale-100 hover:scale-110"
                   />

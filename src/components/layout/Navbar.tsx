@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { getAssetUrl } from '@/lib/utils';
 
 import { 
   Heart, 
@@ -85,7 +86,7 @@ export function Navbar() {
           <Link to="/" className="flex items-center gap-2 group">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <img 
-                src={`${import.meta.env.BASE_URL}logo.png`}
+                src={getAssetUrl('/logo.png')}
                 alt="Theramint Logo" 
                 className="h-10 w-10 object-contain"
                 onError={(e) => {
@@ -162,7 +163,7 @@ export function Navbar() {
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-2">
                     <img 
-                      src={`${import.meta.env.BASE_URL}logo.png`}
+                      src={getAssetUrl('/logo.png')}
                       alt="Theramint Logo" 
                       className="h-8 w-8 object-contain"
                       onError={(e) => {
